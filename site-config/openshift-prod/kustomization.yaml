@@ -1,0 +1,4 @@
+resources:
+  - sas-logon-route.yaml
+  - sas-logon-keystore.yaml
+

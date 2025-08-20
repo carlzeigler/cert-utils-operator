@@ -1,0 +1,46 @@
+---
+# Directory: site-config/openshift-prod/
+
+# File: sas-logon-route.yaml
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sas-logon
+  namespace: sas-viya
+  annotations:
+    cert-utils-operator.redhat-cop.io/certs-from-secret: "sas-ingress-tls"
+    cert-utils-operator.redhat-cop.io/generate-java-keystores: "true"
+spec:
+  host: sas-logon.apps.example.openshift.com
+  to:
+    kind: Service
+    name: sas-logon
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+---
+# File: sas-logon-keystore.yaml
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: Keystore
+metadata:
+  name: sas-logon-jks
+  namespace: sas-viya
+spec:
+  secretRef:
+    name: sas-ingress-tls
+  alias: saslogon
+  keystoreType: JKS
+  outputSecret:
+    name: sas-logon-keystore
+
+---
+# File: kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: sas-viya
+
+resources:
+  - sas-logon-route.yaml
+  - sas-logon-keystore.yaml
